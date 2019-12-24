@@ -14,9 +14,9 @@ def get_file_path(filename):
 
 
 def upload_card(file, storage_client):
-    bucket_name = "yugiohbot-images/submissions"
+    bucket_name = "yugiohbot-images"
     bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.blob(file)
+    blob = bucket.blob('submissions/' + file)
     with open(file, 'rb') as card_file:
         blob.upload_from_file(card_file)
     print("File {} uploaded.".format(file))
