@@ -31,18 +31,18 @@ def function(request):
          Response object using `make_response`
         <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>.
     """
+    
+    # Allows POST requests from any origin with any
+    # header and caches preflight response for an 3600s
+    headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Max-Age': '3600'
+    }
 
     # Set CORS headers for the preflight request
     if request.method == 'OPTIONS':
-        # Allows POST requests from any origin with any
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': '*',
-            'Access-Control-Max-Age': '3600'
-        }
-
         return '', 204, headers
 
     # This code will process each non-file field in the form
@@ -67,4 +67,4 @@ def function(request):
         file_path = get_file_path(file_name)
         os.remove(file_path)
 
-    return "Done", 200
+    return "Done", 200, headers
