@@ -1,0 +1,5 @@
+.idea
+.terraform
+__pycache__
+*.json
+*.zip
