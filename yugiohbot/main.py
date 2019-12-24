@@ -22,7 +22,7 @@ def upload_card(file, storage_client):
     print("File {} uploaded.".format(file))
 
 
-def parse_multipart(request):
+def function(request):
     """ Parses a 'multipart/form-data' upload request
     Args:
         request (flask.Request): The request object.
