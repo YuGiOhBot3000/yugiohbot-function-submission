@@ -1,5 +1,5 @@
 # YuGiOhBot: Submission Function
-Build status: None
+Build status: ![](https://travis-ci.org/YuGiOhBot3000/yugiohbot-function-submission.svg?branch=master)
 
 This project sets up the Submission cloud function for the YuGiOhBot Submission Site.
 

@@ -5,7 +5,7 @@ data "archive_file" "function_zip" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "submission-bucket"
+  name = "submission-site-bucket"
 }
 
 resource "google_storage_bucket_object" "function" {
