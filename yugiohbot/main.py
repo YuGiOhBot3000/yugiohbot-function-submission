@@ -1,8 +1,15 @@
+import io
 import os
 import tempfile
+from datetime import datetime
 
+from google.cloud import firestore
 from google.cloud import storage
+from google.cloud import vision
 from werkzeug.utils import secure_filename
+
+# Project ID is determined by the GCLOUD_PROJECT environment variable
+db = firestore.Client()
 
 
 # Helper function that computes the filepath to save files to
@@ -20,6 +27,55 @@ def upload_card(file, storage_client):
     with open(file, 'rb') as card_file:
         blob.upload_from_file(card_file)
     print("File {} uploaded.".format(file))
+
+
+def detect_safe_search(path):
+    """Detects unsafe features in the file."""
+
+    client = vision.ImageAnnotatorClient()
+
+    with io.open(path, 'rb') as image_file:
+        content = image_file.read()
+
+    image = vision.types.Image(content=content)
+
+    response = client.safe_search_detection(image=image)
+    safe = response.safe_search_annotation
+
+    # Names of likelihood from google.cloud.vision.enums
+    likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
+                       'LIKELY', 'VERY_LIKELY')
+    print('Safe search:')
+
+    print('adult: {}'.format(likelihood_name[safe.adult]))
+    print('medical: {}'.format(likelihood_name[safe.medical]))
+    print('spoofed: {}'.format(likelihood_name[safe.spoof]))
+    print('violence: {}'.format(likelihood_name[safe.violence]))
+    print('racy: {}'.format(likelihood_name[safe.racy]))
+
+    adult = likelihood_name[safe.adult]
+    if adult == 'VERY_LIKELY' or adult == 'LIKELY':
+        return False
+    else:
+        return True
+
+
+def save_to_firestore(title, effect):
+    date = datetime.now().strftime("%d-%m-%Y-%H:%M:%S+%f")
+
+    if title != "":
+        title_ref = db.collection(u'submissions').document(u'titles')
+        title_ref.update({
+            date: title
+        })
+        print("Added title to database: {}".format(title))
+
+    if effect != "":
+        effect_ref = db.collection(u'submissions').document(u'effects')
+        effect_ref.update({
+            date: effect
+        })
+        print("Added effect to database: {}".format(effect))
 
 
 def function(request):
@@ -52,6 +108,9 @@ def function(request):
         fields[field] = data[field]
         print('Processed field: %s' % field)
 
+    if "title" in fields or "effect" in fields:
+        save_to_firestore(fields.get("title", ""), fields.get("effect", ""))
+
     storage_client = storage.Client()
 
     # This code will process each file uploaded
@@ -59,7 +118,10 @@ def function(request):
     for file_name, file in files.items():
         path = get_file_path(file_name)
         file.save(path)
-        upload_card(path, storage_client)
+
+        # Only upload if SafeSearch thinks it's safe.
+        if detect_safe_search(path):
+            upload_card(path, storage_client)
         print('Processed file: %s' % file_name)
 
     # Clear temporary directory
