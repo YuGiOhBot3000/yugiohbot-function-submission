@@ -1,6 +1,7 @@
 import io
 import os
 import tempfile
+import uuid
 from datetime import datetime
 
 from google.cloud import firestore
@@ -22,8 +23,12 @@ def get_file_path(filename):
 
 def upload_card(file, storage_client):
     bucket_name = "yugiohbot-images"
+
+    file_uuid = str(uuid.uuid4())
+    name, extension = os.path.splitext(file)
+
     bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.blob('submissions/' + os.path.basename(file))
+    blob = bucket.blob('submissions/' + name + '_' + file_uuid + extension)
     with open(file, 'rb') as card_file:
         blob.upload_from_file(card_file)
     print("File {} uploaded.".format(file))
@@ -87,7 +92,7 @@ def function(request):
          Response object using `make_response`
         <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>.
     """
-    
+
     # Allows POST requests from any origin with any
     # header and caches preflight response for an 3600s
     headers = {
@@ -101,9 +106,24 @@ def function(request):
     if request.method == 'OPTIONS':
         return '', 204, headers
 
+    data = request.form.to_dict()
+    # process_fields(data)
+
+    # This code will process each file uploaded
+    files = request.files.to_dict()
+    process_files(files)
+
+    # Clear temporary directory
+    for file_name in files:
+        file_path = get_file_path(file_name)
+        os.remove(file_path)
+
+    return "Done", 200, headers
+
+
+def process_fields(data):
     # This code will process each non-file field in the form
     fields = {}
-    data = request.form.to_dict()
     for field in data:
         fields[field] = data[field]
         print('Processed field: %s' % field)
@@ -111,10 +131,9 @@ def function(request):
     if "title" in fields or "effect" in fields:
         save_to_firestore(fields.get("title", ""), fields.get("effect", ""))
 
-    storage_client = storage.Client()
 
-    # This code will process each file uploaded
-    files = request.files.to_dict()
+def process_files(files):
+    storage_client = storage.Client()
     for file_name, file in files.items():
         path = get_file_path(file_name)
         file.save(path)
@@ -123,10 +142,3 @@ def function(request):
         if detect_safe_search(path):
             upload_card(path, storage_client)
         print('Processed file: %s' % file_name)
-
-    # Clear temporary directory
-    for file_name in files:
-        file_path = get_file_path(file_name)
-        os.remove(file_path)
-
-    return "Done", 200, headers
