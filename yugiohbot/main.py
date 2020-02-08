@@ -59,7 +59,7 @@ def detect_safe_search(path):
     print('racy: {}'.format(likelihood_name[safe.racy]))
 
     adult = likelihood_name[safe.adult]
-    if adult == 'VERY_LIKELY' or adult == 'LIKELY':
+    if adult == 'VERY_LIKELY' or adult == 'LIKELY' or adult == 'POSSIBLE':
         return False
     else:
         return True
