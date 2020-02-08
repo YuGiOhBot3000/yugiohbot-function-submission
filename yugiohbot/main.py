@@ -59,8 +59,7 @@ def detect_safe_search(path):
     print('violence: {}'.format(likelihood_name[safe.violence]))
     print('racy: {}'.format(likelihood_name[safe.racy]))
 
-    adult = likelihood_name[safe.adult]
-    if adult == 'VERY_LIKELY' or adult == 'LIKELY' or adult == 'POSSIBLE':
+    if safe.adult >= 3 or safe.racy >= 3 or safe.violence >= 3 or safe.medical >= 3:
         return False
     else:
         return True
