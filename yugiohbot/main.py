@@ -26,6 +26,7 @@ def upload_card(file, storage_client):
 
     file_uuid = str(uuid.uuid4())
     name, extension = os.path.splitext(file)
+    name = name.replace("/tmp/", "")
 
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob('submissions/' + name + '_' + file_uuid + extension)
