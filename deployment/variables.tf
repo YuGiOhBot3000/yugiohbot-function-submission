@@ -15,7 +15,7 @@ variable "function_description" {
 
 variable "function_runtime" {
   description = "The runtime for the function."
-  default     = "python37"
+  default     = "python38"
 }
 
 variable "entry_point" {
