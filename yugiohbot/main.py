@@ -43,7 +43,7 @@ def detect_safe_search(path):
     with io.open(path, 'rb') as image_file:
         content = image_file.read()
 
-    image = vision.types.Image(content=content)
+    image = vision.Image(content=content)
 
     response = client.safe_search_detection(image=image)
     safe = response.safe_search_annotation
