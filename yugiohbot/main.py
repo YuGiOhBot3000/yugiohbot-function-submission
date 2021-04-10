@@ -93,10 +93,10 @@ def function(request):
         <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>.
     """
 
-    # Allows POST requests from any origin with any
+    # Allows POST requests from the github origin with any
     # header and caches preflight response for an 3600s
     headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://yugiohbot3000.github.io/',
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Max-Age': '3600'
