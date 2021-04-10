@@ -96,7 +96,7 @@ def function(request):
     # Allows POST requests from the github origin with any
     # header and caches preflight response for an 3600s
     headers = {
-        'Access-Control-Allow-Origin': 'https://yugiohbot3000.github.io/',
+        'Access-Control-Allow-Origin': 'https://yugiohbot3000.github.io',
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Max-Age': '3600'
